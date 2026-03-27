@@ -10,3 +10,6 @@ class MouseController:
 
     def right_click(self):
         pyautogui.rightClick()
+
+    def double_click(self):
+        pyautogui.doubleClick()

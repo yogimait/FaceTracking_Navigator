@@ -20,6 +20,9 @@ class CursorController:
         self.dead_zone = 0.03
         self.calibration = None
 
+        from smoothing.kalman_filter import CursorKalmanFilter
+        self.kalman_filter = CursorKalmanFilter()
+
     def set_calibration(self, calibration):
         self.calibration = calibration
 
@@ -95,14 +98,13 @@ class CursorController:
         target_y = max(0, min(self.screen_h - 1, target_y))
 
         # -----------------------
-        # SMOOTHING
+        # SMOOTHING (KALMAN FILTER)
         # -----------------------
 
-        smooth = max(1.5, config.CURSOR_SMOOTHING * 0.7)  # Reduce smoothing for more responsiveness
-        x = int(self.prev_x + (target_x - self.prev_x) / smooth)
-        y = int(self.prev_y + (target_y - self.prev_y) / smooth)
+        x, y = self.kalman_filter.predict(target_x, target_y)
+
+        # Ensure final predicted coordinates don't escape screen boundaries
+        x = max(0, min(self.screen_w - 1, x))
+        y = max(0, min(self.screen_h - 1, y))
 
         pyautogui.moveTo(x, y)
-
-        self.prev_x = x
-        self.prev_y = y

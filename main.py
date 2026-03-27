@@ -9,9 +9,6 @@ from vision.hand_tracker import HandTracker
 from core.calibration import FaceCalibration
 from control.cursor_controller import CursorController
 from control.mouse_controller import MouseController
-from control.blink_controller import BlinkController
-
-from gestures.click_gesture import ClickGesture
 
 
 def main():
@@ -24,8 +21,6 @@ def main():
     cursor = CursorController()
     mouse = MouseController()
     gesture_manager = GestureManager()
-    click_gesture = ClickGesture()
-    blink_controller = BlinkController()
 
     calibration = FaceCalibration()
     cursor.set_calibration(calibration)
@@ -43,9 +38,8 @@ def main():
         nose = None
 
         if eye_data is not None:
-            iris, nose, ear = eye_data
+            iris, nose, _ = eye_data
             cursor.move(iris, nose)
-            blink_controller.process(ear, mouse)
         
         key = cv2.waitKey(1) & 0xFF
 
@@ -75,7 +69,7 @@ def main():
         hand = hand_tracker.get_landmarks(frame)
 
         if hand:
-            gesture_manager.process(hand, mouse)
+            gesture_manager.process(hand, mouse, frame)
 
         cv2.imshow("Hands Free Mouse", frame)
 
